@@ -136,7 +136,7 @@ docker exec -it d2f60c3f4b95 mysql -h172.17.0.9 -uroot -p
 
 **172.17.0.9** : The container IP address
 
-we can access the application via the browser by entering the server&#39;s ip address and port 6868. [http://ip\_server:6868](http://ip_server:6868)
+we can access the application via the browser by entering the server&#39;s ip address and port 6868. [http://ip\_server:6868]
 
 
 
@@ -331,7 +331,7 @@ _b- Set the ip address_
 
 Get the right file to set the ip address of the database server
 ```
-kubectl exec form-app-5fd88df9bb-fhdqm -n development -it -- cat /var/www/html/server.php \&gt; server.php
+kubectl exec form-app-5fd88df9bb-fhdqm -n development -it -- cat /var/www/html/server.php > server.php
 ```
 
 set the right ip address in the server.php file and push in the pod
@@ -349,4 +349,4 @@ NAME              TYPE           CLUSTER-IP      EXTERNAL-IP     PORT(S)        
 form-app          LoadBalancer   10.96.49.108    192.168.9.104   80:31458/TCP     28m
 ```
 
-We access the application with the external ip address [http://192.168.9.104](http://192.168.9.104)
+We access the application with the external ip address [http://192.168.9.104] in my case
