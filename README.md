@@ -20,7 +20,7 @@ src/
 ```
 We will add the necessary files for Dockerization and deployment.
 
-We create a new directory named &quot;user-form-app&quot;, and in this directory we put the project folder called &quot;src&quot;. Also we add the following files: Dockerfile, 000-default.conf and start-apache.
+We create a new directory named &quot;form-app-docker&quot;, and in this directory we put the project folder called &quot;src&quot;. Also we add the following files: Dockerfile, 000-default.conf and start-apache.
 
 The file &quot;000-default.conf&quot; is used to configure a virtualhost here is its content :
 
@@ -70,7 +70,7 @@ CMD ["start-apache"]
 
 At this point we have this structure :
 ```
-user-form-app/
+form-app-docker/
 ├── 000-default.conf
 ├── Dockerfile
 ├── src
