@@ -1,7 +1,5 @@
 **TOOL OF THE TRADE PART 2**
-
 Build a simple LAMP stack based web form and move to Kubernetes
-
 (Submit relevant Docker and YAML files for the project along with project folder)
 
 This project is subdivided into two steps, the first step will be to build our docker images and then deploy them on a kubernetes cluster.
