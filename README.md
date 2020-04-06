@@ -9,16 +9,15 @@ This project is subdivided into two steps, the first step will be to build our d
 **1. Docker**
 
 We are going to dockerise our project, it's a simple web form. Here is the content of the project :
-
+```
 src/
-
 ├── errors.php
 ├── index.php
 ├── login.php
 ├── register.php
 ├── server.php
 └── style.css
-
+```
 We will add the necessary files for Dockerization and deployment.
 
 We create a new directory named &quot;user-form-app&quot;, and in this directory we put the project folder called &quot;src&quot;. Also we add the following files: Dockerfile, 000-default.conf and start-apache.
@@ -70,9 +69,8 @@ CMD ["start-apache"]
 ```
 
 At this point we have this structure :
-
+```
 user-form-app/
-
 ├── 000-default.conf
 ├── Dockerfile
 ├── src
@@ -83,7 +81,7 @@ user-form-app/
 │   ├── server.php
 │   └── style.css
 └── start-apache
-
+```
 We can now start building our Docker image.
 
 To build, we execute the following command at the root of the folder :
