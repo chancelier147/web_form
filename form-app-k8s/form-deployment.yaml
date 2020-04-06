@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: form-app
+spec:
+  ports:
+  - port: 80
+  selector:
+    app: form-app
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: form-app
+  labels:
+    app: form-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: form-app
+  template:
+    metadata:
+      labels:
+        app: form-app
+    spec:
+      containers:
+      - name: form
+        image: emmanuel147/form-app:latest
+        ports:
+        - containerPort: 80
