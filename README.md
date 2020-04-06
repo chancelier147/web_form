@@ -6,7 +6,7 @@ Build a simple LAMP stack based web form and move to Kubernetes
 
 This project is subdivided into two steps, the first step will be to build our docker images and then deploy them on a kubernetes cluster.
 
-**1.1**** Docker  **
+**1.Docker**
 
 We are going to dockerise our project, it's a simple web form. Here is the content of the project :
 
@@ -111,46 +111,42 @@ Our web form has been dockerised, but it needs to communicate with a database, s
 To do this we won&#39;t use a Dockerfile, but rather the official mariadb image available on Docker Hub.
 
 We execute the following command :
-
-**$docker run --name registration-db -e MYSQL\_ROOT\_PASSWORD=root -v /data:/var/lib/mysql -d mariadb:10.3-bionic**
+```
+docker run --name registration-db -e MYSQL_ROOT_PASSWORD=root -v /data:/var/lib/mysql -d mariadb:10.3-bionic
+```
 
 In this command we use the -v option to link a volume to our mariadb container in order to save the database data.
 
 We also start the web form container with the following command :
-
-**$docker run -d -p 6868:80 --name my-form-app form-app:latest**
+```
+docker run -d -p 6868:80 --name my-form-app form-app:latest
+```
 
 For the communication between the web form container and the database container we will create a bridge type network. Then insert the two containers in the same private network.
-
-**$docker network create -d bridge manu-bridge**
-
-**$docker network connect manu-bridge registration-db**
-
-**$docker network connect manu-bridge my-form-app**
+```
+docker network create -d bridge manu-bridge
+docker network connect manu-bridge registration-db
+docker network connect manu-bridge my-form-app
+```
 
 To test our application we will connect to the database server, create the database and a table.
 
 We log in with the following command:
+```
+docker exec -it d2f60c3f4b95 mysql -h172.17.0.9 -uroot -p
+```
+```
+>CREATE DATABASE registration;
 
-**$docker exec -it d2f60c3f4b95 mysql -h172.17.0.9 -uroot -p**
+>use registration
 
-**\&gt;CREATE DATABASE registration;**
-
-**\&gt;use registration**
-
-**\&gt;CREATE TABLE `users` (**
-
-**  `id` int(11) NOT NULL AUTO\_INCREMENT PRIMARY KEY,**
-
-**  `username` varchar(100) NOT NULL,**
-
-**  `email` varchar(100) NOT NULL,**
-
-**  `password` varchar(100) NOT NULL**
-
-**) ENGINE=InnoDB DEFAULT CHARSET=latin1;**
-
-
+>CREATE TABLE `users` (
+  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `username` varchar(100) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `password` varchar(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+```
 
 **d2f60c3f4b95** : The container ID
 
@@ -160,21 +156,16 @@ we can access the application via the browser by entering the server&#39;s ip ad
 
 
 
-1. **2.**** Kubernetes**
+**2.Kubernetes**
 
 Now we&#39;re going to move on kubernetes.
 
 We will deploy in a namespace &quot;development&quot;
 
 **First step : deploy a database server like mysql or mariadb**
-
 **Second step : deploy our form web app on kubernetes**
 
-
-
-
-
-**2.1. Deploy mariadb**
+**2.1.Deploy mariadb**
 
 In order to deploy mariadb, we will use two files, the first file for persistent volume and the second file for deployment.
 
@@ -185,164 +176,83 @@ mariadb-deployment.yaml : deployment and service
 here are the contents of the files
 
 **(mariadb-pv.yaml)**
-
-**apiVersion: v1**
-
-**kind: PersistentVolume**
-
-**metadata:**
-
-**  name: mysql-pv-volume**
-
-**  labels:**
-
-**    type: local**
-
-**spec:**
-
-**  storageClassName: manual**
-
-**  capacity:**
-
-**    storage: 20Gi**
-
-**  accessModes:**
-
-**    - ReadWriteOnce**
-
-**  hostPath:**
-
-**    path: &quot;/mnt/data&quot;**
-
-**---**
-
-**apiVersion: v1**
-
-**kind: PersistentVolumeClaim**
-
-**metadata:**
-
-**  name: mysql-pv-claim**
-
-**spec:**
-
-**  storageClassName: manual**
-
-**  accessModes:**
-
-**    - ReadWriteOnce**
-
-**  resources:**
-
-**    requests:**
-
-**      storage: 20Gi**
-
-** **
-
-
-
-
-
-
-
-
-
-
+```
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mysql-pv-volume
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 20Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/data"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pv-claim
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+```
 
 **(mariadb-deployment.yaml)**
-
-**apiVersion: v1**
-
-**kind: Service**
-
-**metadata:**
-
-**  name: registration-db**
-
-**spec:**
-
-**  ports:**
-
-**  - port: 3306**
-
-**  selector:**
-
-**    app: registration-db**
-
-**  type: LoadBalancer**
-
-**---**
-
-**apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2**
-
-**kind: Deployment**
-
-**metadata:**
-
-**  name: registration-db**
-
-**spec:**
-
-**  selector:**
-
-**    matchLabels:**
-
-**      app: registration-db**
-
-**  strategy:**
-
-**    type: Recreate**
-
-**  template:**
-
-**    metadata:**
-
-**      labels:**
-
-**        app: registration-db**
-
-**    spec:**
-
-**      containers:**
-
-**      - image: mariadb:10.3-bionic**
-
-**        name: registration-db**
-
-**        env:**
-
-**          - name: MYSQL\_ROOT\_PASSWORD**
-
-**            valueFrom:**
-
-**              secretKeyRef:**
-
-**                name: mysql-pass**
-
-**                key: password**
-
-**        ports:**
-
-**        - containerPort: 3306**
-
-**          name: registration-db**
-
-**        volumeMounts:**
-
-**        - name: mysql-persistent-storage**
-
-**          mountPath: /var/lib/mysql**
-
-**      volumes:**
-
-**      - name: mysql-persistent-storage**
-
-**        persistentVolumeClaim:**
-
-**          claimName: mysql-pv-claim**
-
-
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: registration-db
+spec:
+  ports:
+  - port: 3306
+  selector:
+    app: registration-db
+  type: LoadBalancer
+---
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: registration-db
+spec:
+  selector:
+    matchLabels:
+      app: registration-db
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: registration-db
+    spec:
+      containers:
+      - image: mariadb:10.3-bionic
+        name: registration-db
+        env:
+          - name: MYSQL_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: mysql-pass
+                key: password
+        ports:
+        - containerPort: 3306
+          name: registration-db
+        volumeMounts:
+        - name: mysql-persistent-storage
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: mysql-persistent-storage
+        persistentVolumeClaim:
+          claimName: mysql-pv-claim
+```
 
 To deploy we execute the following actions :
 
