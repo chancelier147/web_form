@@ -259,10 +259,10 @@ _a- enter in the pod_
 ```
 kubectl exec -it registration-db-f9bdb4df6-8nvd2 bash -n development
 ```
+_b- create the database and table_
 ```
 mysql -uroot -p
 ```
-_b- create the database and table_
 ```
 >CREATE DATABASE registration;
 
