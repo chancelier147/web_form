@@ -6,22 +6,17 @@ Build a simple LAMP stack based web form and move to Kubernetes
 
 This project is subdivided into two steps, the first step will be to build our docker images and then deploy them on a kubernetes cluster.
 
-**1.Docker**
+**1. Docker**
 
 We are going to dockerise our project, it's a simple web form. Here is the content of the project :
 
 src/
 
 ├── errors.php
-
 ├── index.php
-
 ├── login.php
-
 ├── register.php
-
 ├── server.php
-
 └── style.css
 
 We will add the necessary files for Dockerization and deployment.
@@ -79,23 +74,14 @@ At this point we have this structure :
 user-form-app/
 
 ├── 000-default.conf
-
 ├── Dockerfile
-
 ├── src
-
 │   ├── errors.php
-
 │   ├── index.php
-
 │   ├── login.php
-
 │   ├── register.php
-
 │   ├── server.php
-
 │   └── style.css
-
 └── start-apache
 
 We can now start building our Docker image.
@@ -156,7 +142,7 @@ we can access the application via the browser by entering the server&#39;s ip ad
 
 
 
-**2.Kubernetes**
+**2. Kubernetes**
 
 Now we&#39;re going to move on kubernetes.
 
@@ -165,7 +151,7 @@ We will deploy in a namespace &quot;development&quot;
 **First step : deploy a database server like mysql or mariadb**
 **Second step : deploy our form web app on kubernetes**
 
-**2.1.Deploy mariadb**
+**2.1. Deploy mariadb**
 
 In order to deploy mariadb, we will use two files, the first file for persistent volume and the second file for deployment.
 
@@ -257,57 +243,37 @@ spec:
 To deploy we execute the following actions :
 
 _a- creation of a secret to store the root password_
-
-**$kubectl create secret generic mysql-pass --from-literal=password=root -n development**
-
+```
+kubectl create secret generic mysql-pass --from-literal=password=root -n development
+```
 _b- deploy the pv and pvc_
-
-**$kubectl apply -f mariadb-pv.yaml -n development**
-
+```
+$kubectl apply -f mariadb-pv.yaml -n development
+```
 _c- deploy mariadb and its service_
-
-**$kubectl apply -f mariadb-deployment.yaml -n development**
+```
+kubectl apply -f mariadb-deployment.yaml -n development
+```
 
 **2.2. Create a database and a table**
 
 _a- enter in the pod_
-
-**$kubectl exec -it registration-db-f9bdb4df6-8nvd2 bash -n development**
-
+```
+kubectl exec -it registration-db-f9bdb4df6-8nvd2 bash -n development
+```
 _b- create the database and table_
+```
+>CREATE DATABASE registration;
 
-**\&gt;CREATE DATABASE registration;**
+>use registration
 
-**\&gt;use registration**
-
-**\&gt;CREATE TABLE `users` (**
-
-**  `id` int(11) NOT NULL AUTO\_INCREMENT PRIMARY KEY,**
-
-**  `username` varchar(100) NOT NULL,**
-
-**  `email` varchar(100) NOT NULL,**
-
-**  `password` varchar(100) NOT NULL**
-
-**) ENGINE=InnoDB DEFAULT CHARSET=latin1;**
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+>CREATE TABLE `users` (
+  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `username` varchar(100) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `password` varchar(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+```
 **2.3. Deploy the form web app**
 
 To deploy our docker image to kubernetes, we pushed the image to docker hub and then used it in our deployment file. this file contains the deployment and the service file
@@ -315,111 +281,74 @@ To deploy our docker image to kubernetes, we pushed the image to docker hub and 
 here are its contents
 
 **(form-deployment.yaml)**
-
-**apiVersion: v1**
-
-**kind: Service**
-
-**metadata:**
-
-**  name: form-app**
-
-**spec:**
-
-**  ports:**
-
-**  - port: 80**
-
-**  selector:**
-
-**    app: form-app**
-
-**  type: LoadBalancer**
-
-**---**
-
-**apiVersion: apps/v1**
-
-**kind: Deployment**
-
-**metadata:**
-
-**  name: form-app**
-
-**  labels:**
-
-**    app: form-app**
-
-**spec:**
-
-**  replicas: 1**
-
-**  selector:**
-
-**    matchLabels:**
-
-**      app: form-app**
-
-**  template:**
-
-**    metadata:**
-
-**      labels:**
-
-**        app: form-app**
-
-**    spec:**
-
-**      containers:**
-
-**      - name: form**
-
-**        image: emmanuel147/form-app:latest**
-
-**        ports:**
-
-**        - containerPort: 80**
-
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: form-app
+spec:
+  ports:
+  - port: 80
+  selector:
+    app: form-app
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: form-app
+  labels:
+    app: form-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: form-app
+  template:
+    metadata:
+      labels:
+        app: form-app
+    spec:
+      containers:
+      - name: form
+        image: emmanuel147/form-app:latest
+        ports:
+        - containerPort: 80
+```
 We can deploy with the following command :
-
-**$kubectl apply -f form-deployment.yaml -n development**
-
+```
+kubectl apply -f form-deployment.yaml -n development
+```
 We will retrieve the ip address of our database server and then use it in the pod of the web form.
 
-
-
-
-
-        _a- Retrieve the database server ip_
-
-**$kubectl describe pod registration-db-f9bdb4df6-8nvd2 -n development**
+_a- Retrieve the database server ip_
+```
+kubectl describe pod registration-db-f9bdb4df6-8nvd2 -n development
+```
 
 Status:       Running
-
 IP:           10.244.2.193
 
-
-
-        _b- Set the ip address_
+_b- Set the ip address_
 
 Get the right file to set the ip address of the database server
-
-**$kubectl exec form-app-5fd88df9bb-fhdqm -n development -it -- cat /var/www/html/server.php \&gt; server.php**
+```
+kubectl exec form-app-5fd88df9bb-fhdqm -n development -it -- cat /var/www/html/server.php \&gt; server.php
+```
 
 set the right ip address in the server.php file and push in the pod
-
-**$kubectl cp server.php development/form-app-5fd88df9bb-5c62q:/var/www/html/server.php**
-
-
-
+```
+kubectl cp server.php development/form-app-5fd88df9bb-5c62q:/var/www/html/server.php
+```
 **2.4. Finally, we retrieve the ip address of our application with the following command**
-
-**kubectl get service -n development**
+```
+kubectl get service -n development
+```
 
 output :
-
-**NAME               TYPE                 CLUSTER-IP    EXTERNAL-IP  PORT(S)              AGE**
-
-**form-app          LoadBalancer   10.96.49.108    192.168.9.104   80:31458/TCP     28m**
+```
+NAME              TYPE           CLUSTER-IP      EXTERNAL-IP     PORT(S)          AGE
+form-app          LoadBalancer   10.96.49.108    192.168.9.104   80:31458/TCP     28m
+```
 
 We access the application with the external ip address [http://192.168.9.104](http://192.168.9.104)
