@@ -326,9 +326,10 @@ _a- Retrieve the database server ip_
 ```
 kubectl describe pod registration-db-f9bdb4df6-8nvd2 -n development
 ```
-
+```
 Status:       Running
 IP:           10.244.2.193
+```
 
 _b- Set the ip address_
 
