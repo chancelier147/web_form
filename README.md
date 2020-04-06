@@ -353,4 +353,4 @@ NAME              TYPE           CLUSTER-IP      EXTERNAL-IP     PORT(S)        
 form-app          LoadBalancer   10.96.49.108    192.168.9.104   80:31458/TCP     28m
 ```
 
-We access the application with the external ip address [http://192.168.9.104] in my case
+We access the application with the external ip address [http://192.168.9.104] in my case.
