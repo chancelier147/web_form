@@ -146,6 +146,7 @@ Now we&#39;re going to move on kubernetes.
 We will deploy in a namespace &quot;development&quot;
 
 **First step : deploy a database server like mysql or mariadb**
+
 **Second step : deploy our form web app on kubernetes**
 
 **2.1. Deploy mariadb**
