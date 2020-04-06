@@ -88,7 +88,7 @@ To build, we execute the following command at the root of the folder :
 ```
 docker build -t form-app .
 ```
-Nous obtenons l'image suivante : **form-app:latest**
+We get the following image: **form-app:latest**
 
 Our web form has been dockerised, but it needs to communicate with a database, so we will run a mysql database. Preferably we will use mariadb.
 
