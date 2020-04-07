@@ -354,3 +354,5 @@ form-app          LoadBalancer   10.96.49.108    192.168.9.104   80:31458/TCP   
 ```
 
 We access the application with the external ip address [http://192.168.9.104] in my case.
+
+![alt text](https://github.com/chancelier147/web_form/blob/master/web_form.png)
